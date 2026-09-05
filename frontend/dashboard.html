@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL LA VISTA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HOTEL LA VISTA</h1>
+            <div class="header-right">
+                <span id="userDisplay" class="user-badge"></span>
+                <button id="btnLogout" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-btn" data-tab="rooms">Rooms</button>
+            <button id="bookingsTabLabel" class="nav-btn" data-tab="bookings">My Bookings</button>
+            
+            <!-- Admin Only Tabs -->
+            <button class="nav-btn admin-only" data-tab="guests">Guests</button>
+            <button class="nav-btn admin-only" data-tab="payments">Payments</button>
+            <button class="nav-btn admin-only" data-tab="reports">Reports</button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content active">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Rooms</h3>
+                    <p id="totalRooms">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Booked Rooms</h3>
+                    <p id="bookedRooms">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Available Rooms</h3>
+                    <p id="availableRooms">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Occupancy Rate</h3>
+                    <p id="occupancyRate">0%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>My Bookings</h3>
+                    <p id="myBookings">0</p>
+                </div>
+                <div class="stat-card admin-only">
+                    <h3>Booked Guests</h3>
+                    <p id="totalGuests">0</p>
+                </div>
+                <div class="stat-card admin-only">
+                    <h3>Booked Capacity</h3>
+                    <p id="bookedCapacity">0</p>
+                </div>
+                <div class="stat-card admin-only">
+                    <h3>Total Revenue</h3>
+                    <p id="totalRevenue">₱0.00</p>
+                </div>
+            </div>
+            
+            <div id="currentBookings">
+                <h3>My Current Bookings</h3>
+                <div id="currentCheckins"></div>
+            </div>
+            
+            <div class="quick-actions">
+                <button onclick="bookRoom()" class="action-btn primary">📅 Book a Room</button>
+            </div>
+        </div>
+
+        <!-- Rooms Tab -->
+        <div id="tab-rooms" class="tab-content">
+            <h2>Available Rooms</h2>
+            <div class="admin-room-tools admin-only">
+                <h3>Room Management</h3>
+                <form id="createRoomForm" class="admin-form">
+                    <input id="newRoomNumber" type="number" min="1" required placeholder="Room number">
+                       <input id="newRoomName" required placeholder="Display name (e.g. Casa de Blue)">
+                    <select id="newRoomType"><option>STANDARD</option><option>DELUXE</option><option>SUITE</option><option>PENTHOUSE</option></select>
+                    <input id="newRoomFloor" type="number" min="1" required placeholder="Floor">
+                    <input id="newRoomImage" type="url" placeholder="Image URL (optional)">
+                                        <textarea id="newRoomDetails" rows="2" placeholder="Room details, amenities, or notes"></textarea>
+                    <button type="submit" class="action-btn primary">Add room</button>
+                </form>
+                <form id="editRoomForm" class="admin-form">
+                    <input id="editRoomId" type="number" min="1" required placeholder="Room ID to edit">
+                    <select id="editRoomType"><option>STANDARD</option><option>DELUXE</option><option>SUITE</option><option>PENTHOUSE</option></select>
+                       <input id="editRoomName" required placeholder="Display name">
+                    <select id="editRoomStatus"><option>AVAILABLE</option><option>BOOKED</option><option>MAINTENANCE</option><option>CLEANING</option></select>
+                    <input id="editRoomImage" type="url" placeholder="New image URL (optional)">
+                                        <textarea id="editRoomDetails" rows="2" placeholder="Room details, amenities, or notes"></textarea>
+                    <button type="submit" class="action-btn secondary">Update room</button>
+                </form>
+            </div>
+            <div id="roomGrid" class="room-grid"></div>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div id="tab-bookings" class="tab-content">
+            <h2 id="bookingsHeading">My Bookings</h2>
+            <div id="bookingFilters" class="admin-form admin-only">
+                <input id="bookingSearch" placeholder="Search booking or room">
+                <select id="bookingStatusFilter"><option value="">All statuses</option><option>CONFIRMED</option><option>CHECKED_IN</option><option>CHECKED_OUT</option><option>CANCELLED</option></select>
+                <input id="bookingDateFilter" type="date">
+                <button id="clearBookingFilters" type="button" class="booking-secondary">Clear filters</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking No.</th>
+                            <th>Guest</th>
+                            <th>Room</th>
+                            <th>Type</th>
+                            <th>Max Capacity</th>
+                            <th>Perks</th>
+                            <th>Guests</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingTableBody"></tbody>
+                </table>
+            </div>
+            <div id="bookingPagination" class="pagination-controls admin-only"></div>
+        </div>
+
+        <!-- Guests Tab (Admin Only) -->
+        <div id="tab-guests" class="tab-content admin-only">
+            <h2>Guest Management</h2>
+            <p class="section-help">Guests are the people attached to reservations. Review their contact details and booking counts here.</p>
+            <form id="createGuestForm" class="admin-form">
+                <input id="newGuestFirstName" required placeholder="First name">
+                <input id="newGuestLastName" required placeholder="Last name">
+                <input id="newGuestEmail" type="email" required placeholder="Email">
+                <input id="newGuestPhone" required placeholder="Phone (09XXXXXXXXX)">
+                <input id="newGuestAddress" placeholder="Address (optional)">
+                <button type="submit" class="action-btn primary">Add guest</button>
+            </form>
+            <input id="guestSearch" class="admin-search" placeholder="Search guests by name, email, or phone">
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Guest ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Bookings</th><th>Actions</th></tr></thead>
+                    <tbody id="guestTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payments Tab (Admin Only) -->
+        <div id="tab-payments" class="tab-content admin-only">
+            <h2>Payment Processing</h2>
+            <form id="paymentForm" class="admin-form">
+                <label for="paymentBookingId">Booking ID</label>
+                <input id="paymentBookingId" type="number" min="1" required placeholder="e.g. 1">
+                <label for="paymentAmount">Amount (PHP)</label>
+                <input id="paymentAmount" type="number" min="0.01" step="0.01" required placeholder="e.g. 4500">
+                <label for="paymentMethod">Payment method</label>
+                <select id="paymentMethod">
+                    <option>Cash</option><option>GCash</option><option>Credit Card</option><option>Bank Transfer</option><option>PayPal</option>
+                </select>
+                <button type="submit" class="action-btn primary">Record payment</button>
+            </form>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Payment ID</th><th>Booking</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+                    <tbody id="paymentTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Tab (Admin Only) -->
+        <div id="tab-reports" class="tab-content admin-only">
+            <h2>Reports</h2>
+            <div id="reportContent" class="report-grid"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

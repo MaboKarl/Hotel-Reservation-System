@@ -1,0 +1,11 @@
+def __init__(self):
+    if not HotelData._initialized:
+        self.guests = {}
+        self.rooms = {}
+        self.bookings = {}
+        self.payments = {}
+        self.guest_id_counter = 1
+        self.room_id_counter = 1
+        self.booking_id_counter = 1
+        self.payment_id_counter = 1
+        HotelData._initialized = True
